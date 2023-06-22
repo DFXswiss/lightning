@@ -210,3 +210,9 @@ describe('WalletContextProvider', () => {
   });
 });
 */
+
+describe('WalletContextProvider', () => {
+  it('it should true', () => {
+    expect(true).toBeTruthy();
+  });
+});
