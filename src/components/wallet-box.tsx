@@ -1,6 +1,5 @@
 import { useWalletContext } from '../contexts/wallet.context';
 import { useClipboard } from '../hooks/clipboard.hook';
-import { useBlockchain } from '../hooks/blockchain.hook';
 import {
   CopyButton,
   DfxIcon,
@@ -22,9 +21,8 @@ import { useSessionContext } from '@dfx.swiss/react';
 
 export function WalletBox(): JSX.Element {
   const { isConnected } = useWalletContext();
-  const { address, blockchain, isLoggedIn, login, logout } = useSessionContext();
+  const { address, isLoggedIn, login, logout } = useSessionContext();
   const { copy } = useClipboard();
-  const { toString } = useBlockchain();
   const { showsSignatureInfo } = useStore();
   const [showModal, setShowModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -76,11 +74,10 @@ export function WalletBox(): JSX.Element {
         boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
         boxButtonOnClick={() => (isConnected ? (isLoggedIn ? logout() : handleLogin()) : undefined)}
       >
-        <StyledDataTextRow label="Lightning">
+        <StyledDataTextRow label="LNURL">
           {blankedAddress()}
           <CopyButton onCopy={() => copy(address)} inline />
         </StyledDataTextRow>
-        <StyledDataTextRow label="Connected to">{blockchain ? toString(blockchain) : ''}</StyledDataTextRow>
       </StyledDataBox>
     </>
   ) : (

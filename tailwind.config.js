@@ -46,6 +46,10 @@ module.exports = {
       dfxGreen: {
         100: '#31F05B',
       },
+      alby: {
+        400: '#FFDE6E',
+        600: '#F8C455',
+      },
     },
     fontSize: {
       '2xs': '0.625rem', // 10px
@@ -85,6 +89,9 @@ module.exports = {
       },
       padding: {
         15: '60px',
+      },
+      borderRadius: {
+        alby: '6px',
       },
     },
   },

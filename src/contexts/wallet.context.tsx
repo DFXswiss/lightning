@@ -1,5 +1,7 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { Blockchain } from '@dfx.swiss/react';
+import { useAlby } from '../hooks/alby.hook';
+import { useStore } from '../hooks/store.hook';
 
 interface WalletInterface {
   address?: string;
@@ -8,7 +10,8 @@ interface WalletInterface {
   isInstalled: boolean;
   isConnected: boolean;
   connect: () => Promise<string>;
-  signMessage: (message: string, address: string) => Promise<string>;
+  signMessage: (message: string) => Promise<string>;
+  setAddress: (address: string) => void;
 }
 
 const WalletContext = createContext<WalletInterface>(undefined as any);
@@ -20,9 +23,15 @@ export function useWalletContext(): WalletInterface {
 export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   const [address, setAddress] = useState<string>();
   const [balance, setBalance] = useState<string>();
+  const { isInstalled, signMessage: albySignMessage, enable, isEnabled } = useAlby();
+  const { address: storedAddress } = useStore();
 
-  const isConnected = address !== undefined;
-  const isInstalled = false; // TODO: #LN-ALBY# check if alby is installed
+  const addressWithFallback = address ?? storedAddress.get();
+  const isConnected = addressWithFallback !== undefined;
+
+  useEffect(() => {
+    if (!address) setAddress(storedAddress.get());
+  }, []);
 
   useEffect(() => {
     if (address) {
@@ -33,29 +42,42 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   }, [address]);
 
   async function connect(): Promise<string> {
-    const account = undefined // TODO: #LN-ALBY# request address
+    const account = await enable();
     if (!account) throw new Error('Permission denied or account not verified');
-    setAddress(account);
-    return account;
+    if (account?.node?.pubkey) {
+      // log in with pub key
+      setAddress(`LNNID${account.node.pubkey.toUpperCase()}`);
+    } else if (account?.node?.alias?.includes('getalby.com')) {
+      // log in with Alby
+      const win: Window = window;
+      win.location = `${process.env.REACT_APP_API_URL}/alby?redirect_uri=${win.location.origin}`;
+    }
+    return account.node.alias;
   }
 
-  async function signMessage(_message: string, _address: string): Promise<string> {
+  async function signMessage(message: string): Promise<string> {
+    if (!isEnabled) await enable();
     try {
-      return '' // TODO: #LN-ALBY# sign message
+      return await albySignMessage(message);
     } catch (e: any) {
       console.error(e.message, e.code);
       throw e;
     }
   }
 
+  function setAndStoreAddress(address: string) {
+    storedAddress.set(address);
+  }
+
   const context: WalletInterface = {
     address,
     balance,
-    blockchain: Blockchain.BITCOIN,  // TODO: #LN-ALBY# blockchain.lightning
+    blockchain: Blockchain.LIGHTNING,
     isInstalled,
     isConnected,
     connect,
     signMessage,
+    setAddress: setAndStoreAddress,
   };
 
   return <WalletContext.Provider value={context}>{props.children}</WalletContext.Provider>;

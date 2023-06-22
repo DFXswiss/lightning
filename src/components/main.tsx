@@ -5,7 +5,6 @@ import DfxTitleSection from './title-section';
 import { useBuyTab } from './tabs/buy.tab';
 import { UserBox } from './user-box';
 import { WalletBox } from './wallet-box';
-import { useSellTab } from './tabs/sell.tab';
 import {
   DfxLogo,
   DfxVideoHelpModalContent,
@@ -24,6 +23,8 @@ import {
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
 import { useSessionContext, useUserContext } from '@dfx.swiss/react';
+import { ConnectButton } from './connect-button';
+import { useUrlParamHelper } from '../hooks/url-param-helper.hook';
 
 export function Main(): JSX.Element {
   const { isConnected } = useWalletContext();
@@ -31,6 +32,11 @@ export function Main(): JSX.Element {
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
+  const { readParamsAndReload } = useUrlParamHelper();
+
+  useEffect(() => {
+    readParamsAndReload();
+  }, [readParamsAndReload]);
 
   useEffect(() => {
     register(() => setShowsUserLink(true));
@@ -106,18 +112,14 @@ export function Main(): JSX.Element {
             </a>
             {!isMobile && (
               <div className={`flex ${isConnected ? 'gap-2' : 'gap-4'} items-center`}>
-                {isConnected ? (
-                  <p className="text-dfxRed-100">How to</p>
-                ) : (
-                  <StyledButton label="Connect to Alby" onClick={login} />
-                )}
+                {isConnected ? <p className="text-dfxRed-100">How to</p> : <ConnectButton onClick={login} />}
                 <StyledIconButton size={IconSize.LG} icon={IconVariant.HELP} onClick={() => setShowsHelp(true)} />
               </div>
             )}
           </div>
           <div className="md:flex justify-between mt-6">
             <div className="basis-3/5 max-w-[50%] px-6 mx-auto md:mx-0">
-              <DfxTitleSection heading="DFX Lightning" subheading="Buy • Sell • Convert" />
+              <DfxTitleSection heading="Bitcoin Lightning" subheading="Buy • Sell • Convert" />
             </div>
             {!isMobile && (
               <aside className="basis-2/5 shrink-0 md:min-w-[470px] lg:min-w-[512px] mx-auto md:mx-0">
@@ -127,11 +129,12 @@ export function Main(): JSX.Element {
             )}
           </div>
           {!isMobile ? (
-            <StyledTabContainer tabs={[useBuyTab(), useSellTab(), buildComingSoonTab('Convert')]} />
+            <StyledTabContainer tabs={[useBuyTab(), buildComingSoonTab('Sell'), buildComingSoonTab('Convert')]} />
           ) : (
             <>
               <p className="text-center py-12">
-                Our DFX Lightning Exchange is not yet available on mobile. Visit the DFX Lightning Exchange via your computer's web browser.
+                Our DFX Lightning Exchange is not yet available on mobile. Visit the DFX Lightning Exchange via your
+                computer's web browser.
               </p>
               <p className="text-center pb-24">Please check back later for the mobile version.</p>
             </>
