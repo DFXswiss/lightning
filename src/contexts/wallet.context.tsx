@@ -46,7 +46,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     if (!account) throw new Error('Permission denied or account not verified');
     if (account?.node?.pubkey) {
       // log in with pub key
-      setAddress(`LNNID${account.node.pubkey.toUpperCase()}`);
+      setAndStoreAddress(`LNNID${account.node.pubkey.toUpperCase()}`);
     } else if (account?.node?.alias?.includes('getalby.com')) {
       // log in with Alby
       const win: Window = window;
@@ -67,6 +67,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
 
   function setAndStoreAddress(address: string) {
     storedAddress.set(address);
+    setAddress(address);
   }
 
   const context: WalletInterface = {

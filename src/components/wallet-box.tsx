@@ -74,7 +74,7 @@ export function WalletBox(): JSX.Element {
         boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
         boxButtonOnClick={() => (isConnected ? (isLoggedIn ? logout() : handleLogin()) : undefined)}
       >
-        <StyledDataTextRow label="LNURL">
+        <StyledDataTextRow label="Lightning address">
           {blankedAddress()}
           <CopyButton onCopy={() => copy(address)} inline />
         </StyledDataTextRow>
