@@ -1,2 +1,2 @@
-# ln-exchange
+# lightning
 DFX.swiss LN exchange

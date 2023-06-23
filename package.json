@@ -1,0 +1,78 @@
+{
+  "name": "lightning",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@dfx.swiss/react": "^1.0.0-beta.6",
+    "@dfx.swiss/react-components": "1.0.3-beta.3",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.3",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "bignumber.js": "^9.1.1",
+    "copy-to-clipboard": "^3.3.3",
+    "env-cmd": "^10.1.0",
+    "google-libphonenumber": "^3.2.32",
+    "ibantools": "^4.2.1",
+    "jwt-decode": "^3.1.2",
+    "react": "^18.2.0",
+    "react-device-detect": "^2.2.2",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.40.0",
+    "react-qr-code": "^2.0.11",
+    "react-router-dom": "^6.13.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.9.3",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "env-cmd -f .env.loc react-scripts start",
+    "build": "env-cmd -f .env.prd react-scripts build",
+    "build:dev": "env-cmd -f .env.dev react-scripts build",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --no-fix",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "react-scripts test --watchAll=false",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/debounce": "^1.2.1",
+    "@types/google-libphonenumber": "^7.4.23",
+    "autoprefixer": "^10.4.13",
+    "babel-plugin-named-exports-order": "^0.0.2",
+    "postcss": "^8.4.19",
+    "tailwindcss": "^3.2.4",
+    "webpack": "^5.75.0"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "transformIgnorePatterns": [
+      "node_modules/(?!@dfx)"
+    ]
+  }
+}
