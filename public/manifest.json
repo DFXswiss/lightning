@@ -1,0 +1,20 @@
+{
+  "short_name": "DFX LN Exchange",
+  "name": "DFX Lightning Exchange",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#072440"
+}
