@@ -1,6 +1,5 @@
 import { StyledCoinList, StyledCoinListItem, StyledVerticalStack } from '@dfx.swiss/react-components';
-import { Asset, Blockchain, useAssetContext } from '@dfx.swiss/react';
-import { AssetType } from '@dfx.swiss/react/dist/definitions/asset';
+import { Asset, AssetType, Blockchain, useAssetContext } from '@dfx.swiss/react';
 
 interface BuyTabContentOverviewProps {
   onAssetClicked: (asset: Asset) => void;

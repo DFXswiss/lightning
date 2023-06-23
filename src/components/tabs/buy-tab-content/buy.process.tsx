@@ -24,8 +24,7 @@ import useDebounce from '../../../hooks/debounce.hook';
 import { BuyCompletion } from '../../buy/buy-completion';
 import { PaymentInformation, PaymentInformationContent } from '../../buy/payment-information';
 import { KycHint } from '../../kyc-hint';
-import { Asset, Buy, Fiat, useBuyContext, useFiat } from '@dfx.swiss/react';
-import { AssetType } from '@dfx.swiss/react/dist/definitions/asset';
+import { Asset, AssetType, Buy, Fiat, useBuyContext, useFiat } from '@dfx.swiss/react';
 
 interface BuyTabContentProcessProps {
   asset?: Asset;
@@ -158,7 +157,7 @@ export function BuyTabContentProcess({ asset, onBack }: BuyTabContentProcessProp
                     <StyledCoinListItem
                       asset={asset}
                       isToken={asset.type === AssetType.TOKEN}
-                      protocol=''
+                      protocol=""
                       onClick={onBack}
                       disabled
                       alwaysShowDots
