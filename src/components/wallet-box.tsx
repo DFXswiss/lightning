@@ -20,7 +20,7 @@ import { useStore } from '../hooks/store.hook';
 import { useSessionContext } from '@dfx.swiss/react';
 
 export function WalletBox(): JSX.Element {
-  const { isConnected } = useWalletContext();
+  const { isConnected, setAddress } = useWalletContext();
   const { address, isLoggedIn, login, logout } = useSessionContext();
   const { copy } = useClipboard();
   const { showsSignatureInfo } = useStore();
@@ -37,6 +37,11 @@ export function WalletBox(): JSX.Element {
     } else {
       login();
     }
+  }
+
+  function handleLogout() {
+    setAddress(undefined);
+    logout();
   }
 
   return isConnected ? (
@@ -72,7 +77,7 @@ export function WalletBox(): JSX.Element {
       <StyledDataBox
         heading="Your Wallet"
         boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
-        boxButtonOnClick={() => (isConnected ? (isLoggedIn ? logout() : handleLogin()) : undefined)}
+        boxButtonOnClick={() => (isConnected ? (isLoggedIn ? handleLogout() : handleLogin()) : undefined)}
       >
         <StyledDataTextRow label="Lightning address">
           {blankedAddress()}

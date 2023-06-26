@@ -11,7 +11,7 @@ interface WalletInterface {
   isConnected: boolean;
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
-  setAddress: (address: string) => void;
+  setAddress: (address?: string) => void;
 }
 
 const WalletContext = createContext<WalletInterface>(undefined as any);
@@ -65,8 +65,8 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     }
   }
 
-  function setAndStoreAddress(address: string) {
-    storedAddress.set(address);
+  function setAndStoreAddress(address?: string) {
+    address ? storedAddress.set(address) : storedAddress.remove();
     setAddress(address);
   }
 
