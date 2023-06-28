@@ -42,7 +42,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   }, [address]);
 
   async function connect(): Promise<string> {
-    const account = await enable();
+    const account = await enable().catch();
     if (!account) throw new Error('Permission denied or account not verified');
     if (account?.node?.pubkey) {
       // log in with pub key
@@ -56,9 +56,9 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   }
 
   async function signMessage(message: string): Promise<string> {
-    if (!isEnabled) await enable();
+    if (!isEnabled) await enable().catch();
     try {
-      return await albySignMessage(message);
+      return await albySignMessage(message).catch();
     } catch (e: any) {
       console.error(e.message, e.code);
       throw e;
