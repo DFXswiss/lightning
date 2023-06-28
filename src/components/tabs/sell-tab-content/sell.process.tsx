@@ -5,7 +5,6 @@ import Validations from '../../../validations';
 import useDebounce from '../../../hooks/debounce.hook';
 import { useEffect, useState } from 'react';
 import { useKycHelper } from '../../../hooks/kyc-helper.hook';
-import BigNumber from 'bignumber.js';
 import { KycHint } from '../../kyc-hint';
 import {
   AlignContent,
@@ -37,7 +36,6 @@ import { ApiError, Asset, AssetType, BankAccount, Fiat, Sell, useBuyContext, use
 
 interface SellTabContentProcessProps {
   asset?: Asset;
-  balance?: BigNumber;
 }
 
 interface FormData {
@@ -51,13 +49,13 @@ interface PaymentInformation {
   estimatedAmount: string;
   fee: string;
   minFee: string | undefined;
-  depositAddress: string;
+  paymentRequest: string;
 }
 
-export function SellTabContentProcess({ asset, balance }: SellTabContentProcessProps): JSX.Element {
+export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JSX.Element {
   const { currencies, bankAccounts, updateAccount } = useBuyContext();
   const { toDescription, toSymbol } = useFiat();
-  const { address } = useWalletContext();
+  const { address, sendPayment } = useWalletContext();
   const { isAllowedToSell } = useKycHelper();
   const { receiveFor } = useSell();
   const { copy } = useClipboard();
@@ -114,7 +112,6 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
       asset: validatedData.asset,
     })
       .then((value) => checkForMinDeposit(value, amount, validatedData.asset.name))
-      .then((value) => checkForAmountAvailable(amount, validatedData.asset.name, value))
       .then((value) => {
         setKycRequired(dataValid && !isAllowedToSell(Number(value?.estimatedAmount)));
         return value;
@@ -143,16 +140,6 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
     }
   }
 
-  function checkForAmountAvailable(amount: number, asset: string, sell?: Sell): Sell | undefined {
-    if (!sell) return sell;
-    if (balance?.isLessThan(amount) ?? true) {
-      setCustomAmountError(`Entered amount is higher than available balance of ${balance?.toString() ?? 0} ${asset}`);
-    } else {
-      setCustomAmountError(undefined);
-      return sell;
-    }
-  }
-
   function validateData(data?: DeepPartial<FormData>): FormData | undefined {
     if (data && Number(data.amount) > 0 && data.asset != null && data.bankAccount != null && data.currency != null) {
       return data as FormData;
@@ -171,7 +158,7 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
     if (!validatedData || !validatedData.amount || !validatedData.asset || !address || !paymentInfo) return;
     setIsCompleting(true);
     await updateBankAccount();
-    // TODO: #LN-ALBY# create transaction
+    sendPayment(paymentInfo.paymentRequest);
   }
 
   function toPaymentInformation(sell: Sell | undefined): PaymentInformation | undefined {
@@ -181,7 +168,7 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
       fee: `${sell.fee} %`,
       minFee:
         sell.minFeeTarget > 0 && data.currency ? `${sell.minFeeTarget}${toSymbol(data.currency as Fiat)}` : undefined,
-      depositAddress: sell.depositAddress,
+      paymentRequest: sell.paymentRequest ?? '',
     };
   }
 

@@ -11,7 +11,8 @@ interface WalletInterface {
   isConnected: boolean;
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
-  setAddress: (address?: string) => void;
+  sendPayment: (request: string) => Promise<void>;
+  setAddress: (address: string) => void;
 }
 
 const WalletContext = createContext<WalletInterface>(undefined as any);
@@ -23,7 +24,7 @@ export function useWalletContext(): WalletInterface {
 export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   const [address, setAddress] = useState<string>();
   const [balance, setBalance] = useState<string>();
-  const { isInstalled, signMessage: albySignMessage, enable, isEnabled } = useAlby();
+  const { isInstalled, signMessage: albySignMessage, sendPayment: albySendPayment, enable, isEnabled } = useAlby();
   const { address: storedAddress } = useStore();
 
   const addressWithFallback = address ?? storedAddress.get();
@@ -65,8 +66,13 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     }
   }
 
-  function setAndStoreAddress(address?: string) {
-    address ? storedAddress.set(address) : storedAddress.remove();
+  async function sendPayment(request: string): Promise<void> {
+    if (!isEnabled) await enable().catch();
+    return albySendPayment(request);
+  }
+
+  function setAndStoreAddress(address: string) {
+    storedAddress.set(address);
     setAddress(address);
   }
 
@@ -78,6 +84,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     isConnected,
     connect,
     signMessage,
+    sendPayment,
     setAddress: setAndStoreAddress,
   };
 

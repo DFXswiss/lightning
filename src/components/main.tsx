@@ -24,6 +24,7 @@ import {
 } from '@dfx.swiss/react-components';
 import { useSessionContext, useUserContext } from '@dfx.swiss/react';
 import { ConnectButton } from './connect-button';
+import { useSellTab } from './tabs/sell.tab';
 
 export function Main(): JSX.Element {
   const { isConnected } = useWalletContext();
@@ -123,7 +124,7 @@ export function Main(): JSX.Element {
             )}
           </div>
           {!isMobile ? (
-            <StyledTabContainer tabs={[useBuyTab(), buildComingSoonTab('Sell'), buildComingSoonTab('Convert')]} />
+            <StyledTabContainer tabs={[useBuyTab(), useSellTab(), buildComingSoonTab('Convert')]} />
           ) : (
             <>
               <p className="text-center py-12">
