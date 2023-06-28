@@ -24,7 +24,6 @@ import {
 } from '@dfx.swiss/react-components';
 import { useSessionContext, useUserContext } from '@dfx.swiss/react';
 import { ConnectButton } from './connect-button';
-import { useUrlParamHelper } from '../hooks/url-param-helper.hook';
 
 export function Main(): JSX.Element {
   const { isConnected } = useWalletContext();
@@ -32,11 +31,6 @@ export function Main(): JSX.Element {
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
-  const { readParamsAndReload } = useUrlParamHelper();
-
-  useEffect(() => {
-    readParamsAndReload();
-  }, [readParamsAndReload]);
 
   useEffect(() => {
     register(() => setShowsUserLink(true));

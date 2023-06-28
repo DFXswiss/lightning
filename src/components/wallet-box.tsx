@@ -15,21 +15,29 @@ import {
   StyledModalWidth,
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../hooks/store.hook';
 import { useSessionContext } from '@dfx.swiss/react';
+import { useQuery } from '../hooks/query.hook';
 
 export function WalletBox(): JSX.Element {
   const { isConnected, setAddress } = useWalletContext();
   const { address, isLoggedIn, login, logout } = useSessionContext();
   const { copy } = useClipboard();
   const { showsSignatureInfo } = useStore();
+  const { address: paramAddress, reloadWithoutBlockedParams } = useQuery();
   const [showModal, setShowModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
   function blankedAddress(): string {
     return `${address?.slice(0, 6)}...${address?.slice(address?.length - 5)}`;
   }
+
+  useEffect(() => {
+    if (paramAddress) {
+      handleLogin();
+    }
+  }, [paramAddress]);
 
   async function handleLogin() {
     if (showsSignatureInfo.get()) {
@@ -44,7 +52,7 @@ export function WalletBox(): JSX.Element {
     logout();
   }
 
-  return isConnected ? (
+  return (
     <>
       <StyledModal
         type={StyledModalType.ALERT}
@@ -69,23 +77,26 @@ export function WalletBox(): JSX.Element {
             onClick={() => {
               setShowModal(false);
               showsSignatureInfo.set(!isChecked);
-              login();
+              if (paramAddress) {
+                setAddress(paramAddress);
+                reloadWithoutBlockedParams();
+              }
             }}
           />
         </StyledVerticalStack>
       </StyledModal>
-      <StyledDataBox
-        heading="Your Wallet"
-        boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
-        boxButtonOnClick={() => (isConnected ? (isLoggedIn ? handleLogout() : handleLogin()) : undefined)}
-      >
-        <StyledDataTextRow label="Lightning address">
-          {blankedAddress()}
-          <CopyButton onCopy={() => copy(address)} inline />
-        </StyledDataTextRow>
-      </StyledDataBox>
+      {isConnected && (
+        <StyledDataBox
+          heading="Your Wallet"
+          boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
+          boxButtonOnClick={() => (isConnected ? (isLoggedIn ? handleLogout() : handleLogin()) : undefined)}
+        >
+          <StyledDataTextRow label="Lightning address">
+            {blankedAddress()}
+            <CopyButton onCopy={() => copy(address)} inline />
+          </StyledDataTextRow>
+        </StyledDataBox>
+      )}
     </>
-  ) : (
-    <></>
   );
 }
