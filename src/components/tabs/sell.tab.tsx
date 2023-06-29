@@ -1,10 +1,9 @@
 import { SellTabContentProcess } from './sell-tab-content/sell.process';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useWalletContext } from '../../contexts/wallet.context';
 import { UserDataForm } from '../user-data-form';
 import {
   IconVariant,
-  StyledBalanceSelection,
   StyledButton,
   StyledHorizontalStack,
   StyledModal,
@@ -14,7 +13,7 @@ import {
   StyledTabProps,
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
-import { Asset, AssetType, useAssetContext, useSessionContext, useUserContext } from '@dfx.swiss/react';
+import { useAssetContext, useSessionContext, useUserContext } from '@dfx.swiss/react';
 
 export function useSellTab(): StyledTabProps {
   const { user } = useUserContext();
@@ -32,7 +31,6 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
   const { isLoggedIn, login } = useSessionContext();
   const { blockchain, address } = useWalletContext();
   const { assets } = useAssetContext();
-  const [selectedAsset, setSelectedAsset] = useState<Asset>();
 
   const sellableAssets = useMemo(
     () => blockchain && assets.get(blockchain)?.filter((asset) => asset.sellable),
@@ -45,19 +43,6 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
         <UserDataForm />
       </StyledModal>
       <StyledHorizontalStack gap={5}>
-        <StyledBalanceSelection
-          balances={
-            sellableAssets?.map((asset) => ({
-              asset,
-              isToken: asset.type === AssetType.TOKEN,
-              protocol: '',
-              isSelected: asset.id === selectedAsset?.id,
-              // #LN-ALBY# add balance here
-              // #LN-ALBY# add balanceInUsd here
-            })) ?? []
-          }
-          onSelectionChanged={(value) => setSelectedAsset(sellableAssets?.find((asset) => asset.id === value.id))}
-        />
         {!address || !isLoggedIn ? (
           <StyledTabContentWrapper leftBorder>
             <StyledVerticalStack gap={4} marginY={12} center>
@@ -76,7 +61,7 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
           </StyledTabContentWrapper>
         ) : (
           <SellTabContentProcess
-            asset={selectedAsset}
+            asset={sellableAssets?.[0]}
             // #LN-ALBY# add balance here
           />
         )}

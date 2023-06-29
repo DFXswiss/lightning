@@ -8,7 +8,6 @@ import { useKycHelper } from '../../../hooks/kyc-helper.hook';
 import { KycHint } from '../../kyc-hint';
 import {
   AlignContent,
-  CopyButton,
   DfxIcon,
   Form,
   IconColor,
@@ -22,7 +21,6 @@ import {
   StyledDataTable,
   StyledDataTableRow,
   StyledDropdown,
-  StyledHorizontalStack,
   StyledInput,
   StyledLoadingSpinner,
   StyledModalDropdown,
@@ -31,7 +29,6 @@ import {
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
 import { useWalletContext } from '../../../contexts/wallet.context';
-import { useClipboard } from '../../../hooks/clipboard.hook';
 import { ApiError, Asset, AssetType, BankAccount, Fiat, Sell, useBuyContext, useFiat, useSell } from '@dfx.swiss/react';
 
 interface SellTabContentProcessProps {
@@ -58,11 +55,10 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
   const { address, sendPayment } = useWalletContext();
   const { isAllowedToSell } = useKycHelper();
   const { receiveFor } = useSell();
-  const { copy } = useClipboard();
   const [customAmountError, setCustomAmountError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [sellTxId, setSellTxId] = useState<string>();
+  const [isCompleted, setIsCompleted] = useState(false);
   const [kycRequired, setKycRequired] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInformation>();
   const {
@@ -82,7 +78,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
     asset && setValue('asset', asset);
     setValue('amount', '');
     setIsCompleting(false);
-    setSellTxId(undefined);
+    setIsCompleted(false);
   }, [asset]);
 
   useEffect(() => {
@@ -158,7 +154,9 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
     if (!validatedData || !validatedData.amount || !validatedData.asset || !address || !paymentInfo) return;
     setIsCompleting(true);
     await updateBankAccount();
-    sendPayment(paymentInfo.paymentRequest).finally(() => setIsCompleting(false));
+    sendPayment(paymentInfo.paymentRequest)
+      .then(() => setIsCompleted(true))
+      .finally(() => setIsCompleting(false));
   }
 
   function toPaymentInformation(sell: Sell | undefined): PaymentInformation | undefined {
@@ -180,14 +178,14 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
   });
 
   return isCompleting ? (
-    <StyledTabContentWrapper leftBorder>
+    <StyledTabContentWrapper>
       <StyledVerticalStack gap={4} marginY={20} center full>
         <StyledLoadingSpinner size={SpinnerSize.LG} />
         <p>Waiting for the transaction to be executed.</p>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
-  ) : sellTxId ? (
-    <StyledTabContentWrapper leftBorder>
+  ) : isCompleted ? (
+    <StyledTabContentWrapper>
       <StyledVerticalStack gap={4} full>
         <div className="mx-auto">
           <DfxIcon size={IconSize.XXL} icon={IconVariant.PROCESS_DONE} color={IconColor.BLUE} />
@@ -197,17 +195,10 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
           <br />
           We will inform you about the progress via E-mail.
         </p>
-        <StyledHorizontalStack gap={2} center>
-          <p>Transaction hash:</p>
-          <span className="font-bold">{`${sellTxId.substring(0, 5)}...${sellTxId.substring(
-            sellTxId.length - 5,
-          )}`}</span>
-          <CopyButton onCopy={() => copy(sellTxId)} />
-        </StyledHorizontalStack>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
   ) : (
-    <StyledTabContentWrapper leftBorder>
+    <StyledTabContentWrapper>
       <Form control={control} rules={rules} errors={errors} onSubmit={handleSubmit(onSubmit)}>
         <StyledVerticalStack gap={8}>
           <StyledModalDropdown<BankAccount>
