@@ -24,6 +24,7 @@ export function useAlby(): AlbyInterface {
   const isInstalled = Boolean(webln);
 
   function enable(): Promise<GetInfoResponse | undefined> {
+    if (!webln) return Promise.reject();
     return webln
       .enable()
       .then(() => webln.getInfo())
@@ -35,6 +36,7 @@ export function useAlby(): AlbyInterface {
   }
 
   function signMessage(msg: string): Promise<string> {
+    if (!webln) Promise.reject();
     return webln.signMessage(msg).then((r: { signature: string }) => r.signature);
   }
 
