@@ -52,6 +52,8 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
               isToken: asset.type === AssetType.TOKEN,
               protocol: '',
               isSelected: asset.id === selectedAsset?.id,
+              // #LN-ALBY# add balance here
+              // #LN-ALBY# add balanceInUsd here
             })) ?? []
           }
           onSelectionChanged={(value) => setSelectedAsset(sellableAssets?.find((asset) => asset.id === value.id))}
@@ -75,7 +77,7 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
         ) : (
           <SellTabContentProcess
             asset={selectedAsset}
-            // TODO: #LN-ALBY# balance
+            // #LN-ALBY# add balance here
           />
         )}
       </StyledHorizontalStack>

@@ -12,7 +12,7 @@ interface WalletInterface {
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
   sendPayment: (request: string) => Promise<void>;
-  setAddress: (address: string) => void;
+  setAddress: (address?: string) => void;
 }
 
 const WalletContext = createContext<WalletInterface>(undefined as any);
@@ -36,7 +36,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
 
   useEffect(() => {
     if (address) {
-      // TODO: #LN-ALBY#  request balance
+      // #LN-ALBY# request balance here
     } else {
       setBalance(undefined);
     }
@@ -71,8 +71,8 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     return albySendPayment(request);
   }
 
-  function setAndStoreAddress(address: string) {
-    storedAddress.set(address);
+  function setAndStoreAddress(address?: string) {
+    address ? storedAddress.set(address) : storedAddress.remove();
     setAddress(address);
   }
 

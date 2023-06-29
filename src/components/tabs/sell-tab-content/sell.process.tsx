@@ -158,7 +158,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
     if (!validatedData || !validatedData.amount || !validatedData.asset || !address || !paymentInfo) return;
     setIsCompleting(true);
     await updateBankAccount();
-    sendPayment(paymentInfo.paymentRequest);
+    sendPayment(paymentInfo.paymentRequest).finally(() => setIsCompleting(false));
   }
 
   function toPaymentInformation(sell: Sell | undefined): PaymentInformation | undefined {
