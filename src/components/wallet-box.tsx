@@ -88,8 +88,8 @@ export function WalletBox(): JSX.Element {
       {isConnected && (
         <StyledDataBox
           heading="Your Wallet"
-          boxButtonLabel={isConnected ? (isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX') : undefined}
-          boxButtonOnClick={() => (isConnected ? (isLoggedIn ? handleLogout() : handleLogin()) : undefined)}
+          boxButtonLabel={isLoggedIn ? 'Disconnect from DFX' : 'Reconnect to DFX'}
+          boxButtonOnClick={() => (isLoggedIn ? handleLogout() : handleLogin())}
         >
           <StyledDataTextRow label="Lightning address">
             {blankedAddress()}
