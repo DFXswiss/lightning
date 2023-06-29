@@ -14,6 +14,7 @@ export interface AlbyInterface {
   isEnabled: boolean;
   enable: () => Promise<GetInfoResponse | undefined>;
   signMessage: (msg: string) => Promise<string>;
+  sendPayment: (request: string) => Promise<void>;
 }
 
 export function useAlby(): AlbyInterface {
@@ -40,10 +41,16 @@ export function useAlby(): AlbyInterface {
     return webln.signMessage(msg).then((r: { signature: string }) => r.signature);
   }
 
+  function sendPayment(request: string): Promise<void> {
+    if (!webln) return Promise.reject();
+    return webln.sendPayment(request);
+  }
+
   return {
     isInstalled,
     isEnabled,
     enable,
     signMessage,
+    sendPayment,
   };
 }
