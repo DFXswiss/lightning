@@ -11,7 +11,8 @@ interface WalletInterface {
   isConnected: boolean;
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
-  setAddress: (address: string) => void;
+  sendPayment: (request: string) => Promise<void>;
+  setAddress: (address?: string) => void;
 }
 
 const WalletContext = createContext<WalletInterface>(undefined as any);
@@ -23,7 +24,7 @@ export function useWalletContext(): WalletInterface {
 export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   const [address, setAddress] = useState<string>();
   const [balance, setBalance] = useState<string>();
-  const { isInstalled, signMessage: albySignMessage, enable, isEnabled } = useAlby();
+  const { isInstalled, signMessage: albySignMessage, sendPayment: albySendPayment, enable, isEnabled } = useAlby();
   const { address: storedAddress } = useStore();
 
   const addressWithFallback = address ?? storedAddress.get();
@@ -35,14 +36,14 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
 
   useEffect(() => {
     if (address) {
-      // TODO: #LN-ALBY#  request balance
+      // #LN-ALBY# request balance here
     } else {
       setBalance(undefined);
     }
   }, [address]);
 
   async function connect(): Promise<string> {
-    const account = await enable();
+    const account = await enable().catch();
     if (!account) throw new Error('Permission denied or account not verified');
     if (account?.node?.pubkey) {
       // log in with pub key
@@ -56,17 +57,22 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   }
 
   async function signMessage(message: string): Promise<string> {
-    if (!isEnabled) await enable();
+    if (!isEnabled) await enable().catch();
     try {
-      return await albySignMessage(message);
+      return await albySignMessage(message).catch();
     } catch (e: any) {
       console.error(e.message, e.code);
       throw e;
     }
   }
 
-  function setAndStoreAddress(address: string) {
-    storedAddress.set(address);
+  async function sendPayment(request: string): Promise<void> {
+    if (!isEnabled) await enable().catch();
+    return albySendPayment(request);
+  }
+
+  function setAndStoreAddress(address?: string) {
+    address ? storedAddress.set(address) : storedAddress.remove();
     setAddress(address);
   }
 
@@ -78,6 +84,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     isConnected,
     connect,
     signMessage,
+    sendPayment,
     setAddress: setAndStoreAddress,
   };
 

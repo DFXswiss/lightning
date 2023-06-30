@@ -5,11 +5,9 @@ import Validations from '../../../validations';
 import useDebounce from '../../../hooks/debounce.hook';
 import { useEffect, useState } from 'react';
 import { useKycHelper } from '../../../hooks/kyc-helper.hook';
-import BigNumber from 'bignumber.js';
 import { KycHint } from '../../kyc-hint';
 import {
   AlignContent,
-  CopyButton,
   DfxIcon,
   Form,
   IconColor,
@@ -23,7 +21,6 @@ import {
   StyledDataTable,
   StyledDataTableRow,
   StyledDropdown,
-  StyledHorizontalStack,
   StyledInput,
   StyledLoadingSpinner,
   StyledModalDropdown,
@@ -32,12 +29,10 @@ import {
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
 import { useWalletContext } from '../../../contexts/wallet.context';
-import { useClipboard } from '../../../hooks/clipboard.hook';
 import { ApiError, Asset, AssetType, BankAccount, Fiat, Sell, useBuyContext, useFiat, useSell } from '@dfx.swiss/react';
 
 interface SellTabContentProcessProps {
   asset?: Asset;
-  balance?: BigNumber;
 }
 
 interface FormData {
@@ -51,20 +46,19 @@ interface PaymentInformation {
   estimatedAmount: string;
   fee: string;
   minFee: string | undefined;
-  depositAddress: string;
+  paymentRequest: string;
 }
 
-export function SellTabContentProcess({ asset, balance }: SellTabContentProcessProps): JSX.Element {
+export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JSX.Element {
   const { currencies, bankAccounts, updateAccount } = useBuyContext();
   const { toDescription, toSymbol } = useFiat();
-  const { address } = useWalletContext();
+  const { address, sendPayment } = useWalletContext();
   const { isAllowedToSell } = useKycHelper();
   const { receiveFor } = useSell();
-  const { copy } = useClipboard();
   const [customAmountError, setCustomAmountError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [sellTxId, setSellTxId] = useState<string>();
+  const [isCompleted, setIsCompleted] = useState(false);
   const [kycRequired, setKycRequired] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInformation>();
   const {
@@ -84,7 +78,7 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
     asset && setValue('asset', asset);
     setValue('amount', '');
     setIsCompleting(false);
-    setSellTxId(undefined);
+    setIsCompleted(false);
   }, [asset]);
 
   useEffect(() => {
@@ -114,7 +108,6 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
       asset: validatedData.asset,
     })
       .then((value) => checkForMinDeposit(value, amount, validatedData.asset.name))
-      .then((value) => checkForAmountAvailable(amount, validatedData.asset.name, value))
       .then((value) => {
         setKycRequired(dataValid && !isAllowedToSell(Number(value?.estimatedAmount)));
         return value;
@@ -143,16 +136,6 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
     }
   }
 
-  function checkForAmountAvailable(amount: number, asset: string, sell?: Sell): Sell | undefined {
-    if (!sell) return sell;
-    if (balance?.isLessThan(amount) ?? true) {
-      setCustomAmountError(`Entered amount is higher than available balance of ${balance?.toString() ?? 0} ${asset}`);
-    } else {
-      setCustomAmountError(undefined);
-      return sell;
-    }
-  }
-
   function validateData(data?: DeepPartial<FormData>): FormData | undefined {
     if (data && Number(data.amount) > 0 && data.asset != null && data.bankAccount != null && data.currency != null) {
       return data as FormData;
@@ -171,7 +154,9 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
     if (!validatedData || !validatedData.amount || !validatedData.asset || !address || !paymentInfo) return;
     setIsCompleting(true);
     await updateBankAccount();
-    // TODO: #LN-ALBY# create transaction
+    sendPayment(paymentInfo.paymentRequest)
+      .then(() => setIsCompleted(true))
+      .finally(() => setIsCompleting(false));
   }
 
   function toPaymentInformation(sell: Sell | undefined): PaymentInformation | undefined {
@@ -181,7 +166,7 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
       fee: `${sell.fee} %`,
       minFee:
         sell.minFeeTarget > 0 && data.currency ? `${sell.minFeeTarget}${toSymbol(data.currency as Fiat)}` : undefined,
-      depositAddress: sell.depositAddress,
+      paymentRequest: sell.paymentRequest ?? '',
     };
   }
 
@@ -193,14 +178,14 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
   });
 
   return isCompleting ? (
-    <StyledTabContentWrapper leftBorder>
+    <StyledTabContentWrapper>
       <StyledVerticalStack gap={4} marginY={20} center full>
         <StyledLoadingSpinner size={SpinnerSize.LG} />
         <p>Waiting for the transaction to be executed.</p>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
-  ) : sellTxId ? (
-    <StyledTabContentWrapper leftBorder>
+  ) : isCompleted ? (
+    <StyledTabContentWrapper>
       <StyledVerticalStack gap={4} full>
         <div className="mx-auto">
           <DfxIcon size={IconSize.XXL} icon={IconVariant.PROCESS_DONE} color={IconColor.BLUE} />
@@ -210,17 +195,10 @@ export function SellTabContentProcess({ asset, balance }: SellTabContentProcessP
           <br />
           We will inform you about the progress via E-mail.
         </p>
-        <StyledHorizontalStack gap={2} center>
-          <p>Transaction hash:</p>
-          <span className="font-bold">{`${sellTxId.substring(0, 5)}...${sellTxId.substring(
-            sellTxId.length - 5,
-          )}`}</span>
-          <CopyButton onCopy={() => copy(sellTxId)} />
-        </StyledHorizontalStack>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
   ) : (
-    <StyledTabContentWrapper leftBorder>
+    <StyledTabContentWrapper>
       <Form control={control} rules={rules} errors={errors} onSubmit={handleSubmit(onSubmit)}>
         <StyledVerticalStack gap={8}>
           <StyledModalDropdown<BankAccount>

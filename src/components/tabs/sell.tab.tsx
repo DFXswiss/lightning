@@ -1,5 +1,5 @@
 import { SellTabContentProcess } from './sell-tab-content/sell.process';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useWalletContext } from '../../contexts/wallet.context';
 import { UserDataForm } from '../user-data-form';
 import {
@@ -13,11 +13,7 @@ import {
   StyledTabProps,
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
-import {
-  useAssetContext,
-  useSessionContext,
-  useUserContext,
-} from '@dfx.swiss/react';
+import { useAssetContext, useSessionContext, useUserContext } from '@dfx.swiss/react';
 
 export function useSellTab(): StyledTabProps {
   const { user } = useUserContext();
@@ -41,40 +37,35 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
     [blockchain, assets],
   );
 
-  useEffect(() => {
-    if (!sellableAssets) return;
-    // TODO: #LN-ALBY# set balance
-  }, [blockchain, address, assets]);
-
   return (
     <>
       <StyledModal isVisible={needsUserDataForm} type={StyledModalType.ALERT} color={StyledModalColor.WHITE}>
         <UserDataForm />
       </StyledModal>
-        <StyledHorizontalStack gap={5}>
-          {!address || !isLoggedIn ? (
-            <StyledTabContentWrapper leftBorder>
-              <StyledVerticalStack gap={4} marginY={12} center>
-                {!address ? (
-                  <>
-                    <p>Please connect your Alby in order to proceed</p>
-                    <StyledButton label="Connect to Alby" onClick={login} />
-                  </>
-                ) : (
-                  <>
-                    <p>Please reconnect to DFX in order to proceed</p>
-                    <StyledButton label="Reconnect to DFX" onClick={login} />
-                  </>
-                )}
-              </StyledVerticalStack>
-            </StyledTabContentWrapper>
-          ) : (
-            <SellTabContentProcess
-              // TODO: #LN-ALBY# asset
-              // TODO: #LN-ALBY# balance
-            />
-          )}
-        </StyledHorizontalStack>
+      <StyledHorizontalStack gap={5}>
+        {!address || !isLoggedIn ? (
+          <StyledTabContentWrapper leftBorder>
+            <StyledVerticalStack gap={4} marginY={12} center>
+              {!address ? (
+                <>
+                  <p>Please connect your Alby in order to proceed</p>
+                  <StyledButton label="Connect to Alby" onClick={login} />
+                </>
+              ) : (
+                <>
+                  <p>Please reconnect to DFX in order to proceed</p>
+                  <StyledButton label="Reconnect to DFX" onClick={login} />
+                </>
+              )}
+            </StyledVerticalStack>
+          </StyledTabContentWrapper>
+        ) : (
+          <SellTabContentProcess
+            asset={sellableAssets?.[0]}
+            // #LN-ALBY# add balance here
+          />
+        )}
+      </StyledHorizontalStack>
     </>
   );
 }
