@@ -17,14 +17,12 @@ import {
   StyledTabContentWrapper,
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
-import { Utils } from '../../../utils';
-import Validations from '../../../validations';
 import { useKycHelper } from '../../../hooks/kyc-helper.hook';
 import useDebounce from '../../../hooks/debounce.hook';
 import { BuyCompletion } from '../../buy/buy-completion';
 import { PaymentInformation, PaymentInformationContent } from '../../buy/payment-information';
 import { KycHint } from '../../kyc-hint';
-import { Asset, AssetType, Buy, Fiat, useBuyContext, useFiat } from '@dfx.swiss/react';
+import { Asset, AssetType, Buy, Fiat, Utils, Validations, useBuyContext, useFiat } from '@dfx.swiss/react';
 
 interface BuyTabContentProcessProps {
   asset?: Asset;
