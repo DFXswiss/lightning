@@ -1,7 +1,5 @@
 import { DeepPartial, useForm, useWatch } from 'react-hook-form';
-import { Utils } from '../../../utils';
 import { AddBankAccount } from '../../buy/add-bank-account';
-import Validations from '../../../validations';
 import useDebounce from '../../../hooks/debounce.hook';
 import { useEffect, useState } from 'react';
 import { useKycHelper } from '../../../hooks/kyc-helper.hook';
@@ -29,7 +27,19 @@ import {
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
 import { useWalletContext } from '../../../contexts/wallet.context';
-import { ApiError, Asset, AssetType, BankAccount, Fiat, Sell, useBuyContext, useFiat, useSell } from '@dfx.swiss/react';
+import {
+  ApiError,
+  Asset,
+  AssetType,
+  BankAccount,
+  Fiat,
+  Sell,
+  Utils,
+  Validations,
+  useBuyContext,
+  useFiat,
+  useSell,
+} from '@dfx.swiss/react';
 
 interface SellTabContentProcessProps {
   asset?: Asset;

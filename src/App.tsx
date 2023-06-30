@@ -22,7 +22,7 @@ function AppWrapper(): JSX.Element {
   ]);
 
   return (
-    <DfxContextProvider api={{ signMessage, connect }} data={{ address, blockchain, isConnected }}>
+    <DfxContextProvider api={{ signMessage, connect }} data={{ address, blockchain, isConnected, walletId: 20 }}>
       <RouterProvider router={router} />
     </DfxContextProvider>
   );
