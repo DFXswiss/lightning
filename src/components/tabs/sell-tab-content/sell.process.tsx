@@ -36,7 +36,7 @@ import {
   Sell,
   Utils,
   Validations,
-  useBuyContext,
+  useBankAccountContext,
   useFiat,
   useSell,
 } from '@dfx.swiss/react';
@@ -60,11 +60,11 @@ interface PaymentInformation {
 }
 
 export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JSX.Element {
-  const { currencies, bankAccounts, updateAccount } = useBuyContext();
+  const { bankAccounts, updateAccount } = useBankAccountContext();
   const { toDescription, toSymbol } = useFiat();
   const { address, sendPayment } = useWalletContext();
   const { isAllowedToSell } = useKycHelper();
-  const { receiveFor } = useSell();
+  const { currencies, receiveFor } = useSell();
   const [customAmountError, setCustomAmountError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
