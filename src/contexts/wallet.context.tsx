@@ -11,7 +11,7 @@ interface WalletInterface {
   isConnected: boolean;
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
-  sendPayment: (request: string) => Promise<void>;
+  sendPayment: (request: string) => Promise<string>;
   setAddress: (address?: string) => void;
 }
 
@@ -66,9 +66,9 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     }
   }
 
-  async function sendPayment(request: string): Promise<void> {
+  async function sendPayment(request: string): Promise<string> {
     if (!isEnabled) await enable().catch();
-    return albySendPayment(request);
+    return albySendPayment(request).then((r) => r.preimage);
   }
 
   function setAndStoreAddress(address?: string) {
