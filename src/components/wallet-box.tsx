@@ -35,16 +35,27 @@ export function WalletBox(): JSX.Element {
 
   useEffect(() => {
     if (paramAddress) {
-      handleLogin();
+      setAddress(paramAddress);
+      reloadWithoutBlockedParams();
     }
   }, [paramAddress]);
+
+  useEffect(() => {
+    if (isConnected && !isLoggedIn) {
+      handleLogin();
+    }
+  }, [isConnected, isLoggedIn]);
 
   async function handleLogin() {
     if (showsSignatureInfo.get()) {
       setShowModal(true);
     } else {
-      login();
+      doLogin();
     }
+  }
+
+  function doLogin() {
+    login().catch(() => setAddress(undefined));
   }
 
   function handleLogout() {
@@ -77,10 +88,8 @@ export function WalletBox(): JSX.Element {
             onClick={() => {
               setShowModal(false);
               showsSignatureInfo.set(!isChecked);
-              if (paramAddress) {
-                setAddress(paramAddress);
-                reloadWithoutBlockedParams();
-              }
+
+              doLogin();
             }}
           />
         </StyledVerticalStack>
