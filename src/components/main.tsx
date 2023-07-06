@@ -79,10 +79,15 @@ export function Main(): JSX.Element {
       </StyledModal>
       <StyledModal onClose={setShowsHelp} isVisible={showsHelp} width={StyledModalWidth.FULL_WIDTH} heading="Help">
         <DfxVideoHelpModalContent
-          title="Get started with the DFX Lightning Exchange"
+          title="Buy and sell Bitcoin Lightning"
           description="We are the crypto exchange you don't need to trust your funds. Your keys, your coins, here is how it works:"
-          videoSources={[]}
-          numCols={3}
+          videoSources={[
+            {
+              vidSrc: 'https://content.dfx.swiss/video/2023-07-06_Lightning-Intro.mp4',
+              thumbSrc: 'https://content.dfx.swiss/video/2023-07-06_Lightning-Intro-Thumb.png',
+            },
+          ]}
+          numCols={1}
         />
       </StyledModal>
       <StyledModal isVisible={showsUserLink} onClose={setShowsUserLink} type={StyledModalType.ALERT}>
