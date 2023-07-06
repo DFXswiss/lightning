@@ -9,12 +9,17 @@ export interface GetInfoResponse {
   methods: string[];
 }
 
+export interface PaymentResponse {
+  paymentHash: string;
+  preimage: string;
+}
+
 export interface AlbyInterface {
   isInstalled: boolean;
   isEnabled: boolean;
   enable: () => Promise<GetInfoResponse | undefined>;
   signMessage: (msg: string) => Promise<string>;
-  sendPayment: (request: string) => Promise<void>;
+  sendPayment: (request: string) => Promise<PaymentResponse>;
 }
 
 export function useAlby(): AlbyInterface {
@@ -41,7 +46,7 @@ export function useAlby(): AlbyInterface {
     return webln.signMessage(msg).then((r: { signature: string }) => r.signature);
   }
 
-  function sendPayment(request: string): Promise<void> {
+  function sendPayment(request: string): Promise<PaymentResponse> {
     if (!webln) return Promise.reject();
     return webln.sendPayment(request);
   }
