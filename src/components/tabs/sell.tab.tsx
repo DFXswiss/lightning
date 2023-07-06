@@ -28,8 +28,8 @@ export function useSellTab(): StyledTabProps {
 }
 
 function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): JSX.Element {
-  const { isLoggedIn, login } = useSessionContext();
-  const { blockchain, address } = useWalletContext();
+  const { isLoggedIn } = useSessionContext();
+  const { blockchain, connect } = useWalletContext();
   const { assets } = useAssetContext();
 
   const sellableAssets = useMemo(
@@ -43,20 +43,11 @@ function SellTabContent({ needsUserDataForm }: { needsUserDataForm: boolean }): 
         <UserDataForm />
       </StyledModal>
       <StyledHorizontalStack gap={5}>
-        {!address || !isLoggedIn ? (
+        {!isLoggedIn ? (
           <StyledTabContentWrapper leftBorder>
             <StyledVerticalStack gap={4} marginY={12} center>
-              {!address ? (
-                <>
-                  <p>Please connect your Alby in order to proceed</p>
-                  <StyledButton label="Connect to Alby" onClick={login} />
-                </>
-              ) : (
-                <>
-                  <p>Please reconnect to DFX in order to proceed</p>
-                  <StyledButton label="Reconnect to DFX" onClick={login} />
-                </>
-              )}
+              <p>Please connect your Alby in order to proceed</p>
+              <StyledButton label="Connect to Alby" onClick={connect} />
             </StyledVerticalStack>
           </StyledTabContentWrapper>
         ) : (
