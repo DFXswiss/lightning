@@ -27,8 +27,8 @@ import { ConnectButton } from './connect-button';
 import { useSellTab } from './tabs/sell.tab';
 
 export function Main(): JSX.Element {
-  const { isConnected } = useWalletContext();
-  const { isProcessing, needsSignUp, login, signUp } = useSessionContext();
+  const { isConnected, connect } = useWalletContext();
+  const { isProcessing, needsSignUp, signUp } = useSessionContext();
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
@@ -112,7 +112,7 @@ export function Main(): JSX.Element {
             </a>
             {!isMobile && (
               <div className={`flex ${isConnected ? 'gap-2' : 'gap-4'} items-center`}>
-                {isConnected ? <p className="text-dfxRed-100">How to</p> : <ConnectButton onClick={login} />}
+                {isConnected ? <p className="text-dfxRed-100">How to</p> : <ConnectButton onClick={connect} />}
                 <StyledIconButton size={IconSize.LG} icon={IconVariant.HELP} onClick={() => setShowsHelp(true)} />
               </div>
             )}
