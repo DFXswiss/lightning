@@ -220,7 +220,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
             modal={{
               heading: 'Select your bank account',
               items: bankAccounts ?? [],
-              itemContent: (b) => <StyledBankAccountListItem bankAccount={{ label: b.label ?? '', ...b }} />,
+              itemContent: (b) => <StyledBankAccountListItem bankAccount={b} />,
               form: (onFormSubmit: (item: BankAccount) => void) => <AddBankAccount onSubmit={onFormSubmit} />,
             }}
           />
