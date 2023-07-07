@@ -27,8 +27,8 @@ import { ConnectButton } from './connect-button';
 import { useSellTab } from './tabs/sell.tab';
 
 export function Main(): JSX.Element {
-  const { isConnected } = useWalletContext();
-  const { isProcessing, needsSignUp, login, signUp } = useSessionContext();
+  const { isConnected, connect } = useWalletContext();
+  const { isProcessing, needsSignUp, signUp } = useSessionContext();
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
@@ -79,10 +79,15 @@ export function Main(): JSX.Element {
       </StyledModal>
       <StyledModal onClose={setShowsHelp} isVisible={showsHelp} width={StyledModalWidth.FULL_WIDTH} heading="Help">
         <DfxVideoHelpModalContent
-          title="Get started with the DFX Lightning Exchange"
+          title="Buy and sell Bitcoin Lightning"
           description="We are the crypto exchange you don't need to trust your funds. Your keys, your coins, here is how it works:"
-          videoSources={[]}
-          numCols={3}
+          videoSources={[
+            {
+              vidSrc: 'https://content.dfx.swiss/video/2023-07-06_Lightning-Intro.mp4',
+              thumbSrc: 'https://content.dfx.swiss/video/2023-07-06_Lightning-Intro-Thumb.png',
+            },
+          ]}
+          numCols={1}
         />
       </StyledModal>
       <StyledModal isVisible={showsUserLink} onClose={setShowsUserLink} type={StyledModalType.ALERT}>
@@ -107,7 +112,7 @@ export function Main(): JSX.Element {
             </a>
             {!isMobile && (
               <div className={`flex ${isConnected ? 'gap-2' : 'gap-4'} items-center`}>
-                {isConnected ? <p className="text-dfxRed-100">How to</p> : <ConnectButton onClick={login} />}
+                {isConnected ? <p className="text-dfxRed-100">How to</p> : <ConnectButton onClick={connect} />}
                 <StyledIconButton size={IconSize.LG} icon={IconVariant.HELP} onClick={() => setShowsHelp(true)} />
               </div>
             )}

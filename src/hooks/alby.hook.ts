@@ -1,49 +1,44 @@
 import { useState } from 'react';
-
-export interface GetInfoResponse {
-  node: {
-    alias: string;
-    pubkey: string;
-    color?: string;
-  };
-  methods: string[];
-}
+import { WebLNProvider, GetInfoResponse, SendPaymentResponse } from 'webln';
 
 export interface AlbyInterface {
-  isInstalled: boolean;
+  isInstalled: () => boolean;
   isEnabled: boolean;
   enable: () => Promise<GetInfoResponse | undefined>;
   signMessage: (msg: string) => Promise<string>;
-  sendPayment: (request: string) => Promise<void>;
+  sendPayment: (request: string) => Promise<SendPaymentResponse>;
 }
 
 export function useAlby(): AlbyInterface {
-  const { webln } = window as any;
-
   const [isEnabled, setIsEnabled] = useState(false);
 
-  const isInstalled = Boolean(webln);
+  function webln(): WebLNProvider {
+    return (window as any).webln;
+  }
+
+  function isInstalled() {
+    return Boolean(webln());
+  }
 
   function enable(): Promise<GetInfoResponse | undefined> {
-    if (!webln) return Promise.reject();
-    return webln
+    return webln()
       .enable()
-      .then(() => webln.getInfo())
+      .then(() => webln().getInfo())
       .catch(() => undefined)
-      .then((r: GetInfoResponse) => {
+      .then((r) => {
         setIsEnabled(r != null);
         return r;
       });
   }
 
   function signMessage(msg: string): Promise<string> {
-    if (!webln) Promise.reject();
-    return webln.signMessage(msg).then((r: { signature: string }) => r.signature);
+    return webln()
+      .signMessage(msg)
+      .then((r) => r.signature);
   }
 
-  function sendPayment(request: string): Promise<void> {
-    if (!webln) return Promise.reject();
-    return webln.sendPayment(request);
+  function sendPayment(request: string): Promise<SendPaymentResponse> {
+    return webln().sendPayment(request);
   }
 
   return {

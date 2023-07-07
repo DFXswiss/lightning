@@ -7,11 +7,11 @@ interface WalletInterface {
   address?: string;
   blockchain?: Blockchain;
   balance?: string;
-  isInstalled: boolean;
+  isInstalled: () => boolean;
   isConnected: boolean;
   connect: () => Promise<string>;
   signMessage: (message: string) => Promise<string>;
-  sendPayment: (request: string) => Promise<void>;
+  sendPayment: (request: string) => Promise<string>;
   setAddress: (address?: string) => void;
 }
 
@@ -45,15 +45,20 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   async function connect(): Promise<string> {
     const account = await enable().catch();
     if (!account) throw new Error('Permission denied or account not verified');
+
     if (account?.node?.pubkey) {
       // log in with pub key
-      setAndStoreAddress(`LNNID${account.node.pubkey.toUpperCase()}`);
+      const address = `LNNID${account.node.pubkey.toUpperCase()}`;
+      setAndStoreAddress(address);
+      return address;
     } else if (account?.node?.alias?.includes('getalby.com')) {
       // log in with Alby
       const win: Window = window;
       win.location = `${process.env.REACT_APP_API_URL}/alby?redirect_uri=${win.location.origin}`;
+      return '';
     }
-    return account.node.alias;
+
+    throw new Error('No login method found');
   }
 
   async function signMessage(message: string): Promise<string> {
@@ -66,9 +71,9 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     }
   }
 
-  async function sendPayment(request: string): Promise<void> {
+  async function sendPayment(request: string): Promise<string> {
     if (!isEnabled) await enable().catch();
-    return albySendPayment(request);
+    return albySendPayment(request).then((r) => r.preimage);
   }
 
   function setAndStoreAddress(address?: string) {

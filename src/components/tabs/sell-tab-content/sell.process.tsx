@@ -1,13 +1,12 @@
 import { DeepPartial, useForm, useWatch } from 'react-hook-form';
-import { Utils } from '../../../utils';
 import { AddBankAccount } from '../../buy/add-bank-account';
-import Validations from '../../../validations';
 import useDebounce from '../../../hooks/debounce.hook';
 import { useEffect, useState } from 'react';
 import { useKycHelper } from '../../../hooks/kyc-helper.hook';
 import { KycHint } from '../../kyc-hint';
 import {
   AlignContent,
+  CopyButton,
   DfxIcon,
   Form,
   IconColor,
@@ -21,6 +20,7 @@ import {
   StyledDataTable,
   StyledDataTableRow,
   StyledDropdown,
+  StyledHorizontalStack,
   StyledInput,
   StyledLoadingSpinner,
   StyledModalDropdown,
@@ -29,7 +29,20 @@ import {
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
 import { useWalletContext } from '../../../contexts/wallet.context';
-import { ApiError, Asset, AssetType, BankAccount, Fiat, Sell, useBuyContext, useFiat, useSell } from '@dfx.swiss/react';
+import {
+  ApiError,
+  Asset,
+  AssetType,
+  BankAccount,
+  Fiat,
+  Sell,
+  Utils,
+  Validations,
+  useBankAccountContext,
+  useFiat,
+  useSell,
+} from '@dfx.swiss/react';
+import { useClipboard } from '../../../hooks/clipboard.hook';
 
 interface SellTabContentProcessProps {
   asset?: Asset;
@@ -50,15 +63,16 @@ interface PaymentInformation {
 }
 
 export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JSX.Element {
-  const { currencies, bankAccounts, updateAccount } = useBuyContext();
+  const { bankAccounts, updateAccount } = useBankAccountContext();
   const { toDescription, toSymbol } = useFiat();
   const { address, sendPayment } = useWalletContext();
   const { isAllowedToSell } = useKycHelper();
-  const { receiveFor } = useSell();
+  const { currencies, receiveFor } = useSell();
+  const { copy } = useClipboard();
   const [customAmountError, setCustomAmountError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
+  const [sellTxId, setSellTxId] = useState<string>();
   const [kycRequired, setKycRequired] = useState(false);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInformation>();
   const {
@@ -78,7 +92,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
     asset && setValue('asset', asset);
     setValue('amount', '');
     setIsCompleting(false);
-    setIsCompleted(false);
+    setSellTxId(undefined);
   }, [asset]);
 
   useEffect(() => {
@@ -155,7 +169,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
     setIsCompleting(true);
     await updateBankAccount();
     sendPayment(paymentInfo.paymentRequest)
-      .then(() => setIsCompleted(true))
+      .then((txId) => setSellTxId(txId))
       .finally(() => setIsCompleting(false));
   }
 
@@ -184,7 +198,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
         <p>Waiting for the transaction to be executed.</p>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
-  ) : isCompleted ? (
+  ) : sellTxId ? (
     <StyledTabContentWrapper>
       <StyledVerticalStack gap={4} full>
         <div className="mx-auto">
@@ -195,6 +209,13 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
           <br />
           We will inform you about the progress via E-mail.
         </p>
+        <StyledHorizontalStack gap={2} center>
+          <p>Transaction preimage:</p>
+          <span className="font-bold">{`${sellTxId.substring(0, 5)}...${sellTxId.substring(
+            sellTxId.length - 5,
+          )}`}</span>
+          <CopyButton onCopy={() => copy(sellTxId)} />
+        </StyledHorizontalStack>
       </StyledVerticalStack>
     </StyledTabContentWrapper>
   ) : (
@@ -210,7 +231,7 @@ export function SellTabContentProcess({ asset }: SellTabContentProcessProps): JS
             modal={{
               heading: 'Select your bank account',
               items: bankAccounts ?? [],
-              itemContent: (b) => <StyledBankAccountListItem bankAccount={{ label: b.label ?? '', ...b }} />,
+              itemContent: (b) => <StyledBankAccountListItem bankAccount={b} />,
               form: (onFormSubmit: (item: BankAccount) => void) => <AddBankAccount onSubmit={onFormSubmit} />,
             }}
           />
