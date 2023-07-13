@@ -27,8 +27,7 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
   const { isInstalled, signMessage: albySignMessage, sendPayment: albySendPayment, enable, isEnabled } = useAlby();
   const { address: storedAddress } = useStore();
 
-  const addressWithFallback = address ?? storedAddress.get();
-  const isConnected = addressWithFallback !== undefined;
+  const isConnected = address !== undefined;
 
   useEffect(() => {
     if (!address) setAddress(storedAddress.get());

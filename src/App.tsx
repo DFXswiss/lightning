@@ -12,7 +12,7 @@ function App() {
 }
 
 function AppWrapper(): JSX.Element {
-  const { signMessage, connect, address, blockchain, isConnected } = useWalletContext();
+  const { signMessage, address, blockchain } = useWalletContext();
 
   const router = createBrowserRouter([
     {
@@ -22,7 +22,7 @@ function AppWrapper(): JSX.Element {
   ]);
 
   return (
-    <DfxContextProvider api={{ signMessage, connect }} data={{ address, blockchain, isConnected, walletId: 20 }}>
+    <DfxContextProvider api={{ signMessage }} data={{ address, blockchain, walletId: 20 }}>
       <RouterProvider router={router} />
     </DfxContextProvider>
   );
