@@ -27,15 +27,20 @@ import { ConnectButton } from './connect-button';
 import { useSellTab } from './tabs/sell.tab';
 
 export function Main(): JSX.Element {
-  const { isConnected, connect } = useWalletContext();
+  const { isInstalled, isConnected, connect: connectWallet } = useWalletContext();
   const { isProcessing, needsSignUp, signUp } = useSessionContext();
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
+  const [showsInstallHint, setShowsInstallHint] = useState(false);
 
   useEffect(() => {
     register(() => setShowsUserLink(true));
   });
+
+  function connect() {
+    isInstalled() ? connectWallet() : setShowsInstallHint(true);
+  }
 
   function buildComingSoonTab(title: string): StyledTabProps {
     return {
@@ -50,6 +55,20 @@ export function Main(): JSX.Element {
   return (
     <>
       {/* MODALS */}
+      <StyledModal type={StyledModalType.ALERT} isVisible={showsInstallHint}>
+        <StyledVerticalStack gap={4}>
+          <h1>Please install Alby!</h1>
+          <p>
+            You need to install the Alby browser extension to be able to use this service. Visit{' '}
+            <StyledLink label="getalby.com" url="https://getalby.com" dark /> for more details.
+          </p>
+
+          <div className="mx-auto">
+            <StyledButton width={StyledButtonWidth.SM} onClick={() => setShowsInstallHint(false)} label="Got it." />
+          </div>
+        </StyledVerticalStack>
+      </StyledModal>
+
       <StyledModal type={StyledModalType.ALERT} isVisible={needsSignUp}>
         <StyledVerticalStack>
           <h1>Terms and Conditions.</h1>
@@ -77,6 +96,7 @@ export function Main(): JSX.Element {
           </div>
         </StyledVerticalStack>
       </StyledModal>
+
       <StyledModal onClose={setShowsHelp} isVisible={showsHelp} width={StyledModalWidth.FULL_WIDTH} heading="Help">
         <DfxVideoHelpModalContent
           title="Buy and sell Bitcoin Lightning"
@@ -90,6 +110,7 @@ export function Main(): JSX.Element {
           numCols={1}
         />
       </StyledModal>
+
       <StyledModal isVisible={showsUserLink} onClose={setShowsUserLink} type={StyledModalType.ALERT}>
         <StyledVerticalStack gap={4}>
           <h1>Welcome back!</h1>
@@ -103,6 +124,7 @@ export function Main(): JSX.Element {
           </div>
         </StyledVerticalStack>
       </StyledModal>
+
       {/* CONTENT */}
       <div className="text-center p-2 mt-4">
         <div className="max-w-6xl text-left mx-auto ">
