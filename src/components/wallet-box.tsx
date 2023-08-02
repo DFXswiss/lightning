@@ -31,24 +31,6 @@ export function WalletBox(): JSX.Element {
   const [showModal, setShowModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
 
-  function blankedAddress(): string {
-    return `${address?.slice(0, 6)}...${address?.slice(address?.length - 5)}`;
-  }
-
-  const wellKnownAddress = (() => {
-    if (address?.startsWith('LNURL')) {
-      const decoded = bech32.decode(address, 1023);
-      const decodedAddress = Buffer.from(bech32.fromWords(decoded.words)).toString('utf8');
-
-      if (decodedAddress.includes('/.well-known/lnurlp/')) {
-        const url = new URL(decodedAddress);
-        return url.pathname.split('/').pop() + '@' + url.hostname;
-      }
-    }
-
-    return null;
-  })();
-
   useEffect(() => {
     if (paramAddress) {
       setAddress(paramAddress);
@@ -78,6 +60,25 @@ export function WalletBox(): JSX.Element {
     setAddress(undefined);
     logout();
   }
+
+  function blankedAddress(): string {
+    return `${address?.slice(0, 6)}...${address?.slice(address?.length - 5)}`;
+  }
+
+  function wellKnownAddress(): string | undefined {
+    if (address?.startsWith('LNURL')) {
+      const decoded = bech32.decode(address, 1023);
+      const decodedAddress = Buffer.from(bech32.fromWords(decoded.words)).toString('utf8');
+
+      if (decodedAddress.includes('/.well-known/lnurlp/')) {
+        const url = new URL(decodedAddress);
+        return url.pathname.split('/').pop() + '@' + url.hostname;
+      }
+    }
+  }
+
+  const displayAddress = wellKnownAddress() ?? blankedAddress();
+  const copyAddress = wellKnownAddress() ?? address;
 
   return (
     <>
@@ -117,10 +118,9 @@ export function WalletBox(): JSX.Element {
           boxButtonOnClick={() => (isLoggedIn ? handleLogout() : handleLogin())}
         >
           <StyledDataTextRow label="Lightning address">
-            {blankedAddress()}
-            <CopyButton onCopy={() => copy(address)} inline />
+            {displayAddress}
+            <CopyButton onCopy={() => copy(copyAddress)} inline />
           </StyledDataTextRow>
-          {wellKnownAddress && <StyledDataTextRow label="Lightning address">{wellKnownAddress}</StyledDataTextRow>}
         </StyledDataBox>
       )}
     </>
