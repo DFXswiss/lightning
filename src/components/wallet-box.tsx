@@ -18,7 +18,6 @@ import {
 import { useEffect, useState } from 'react';
 import { useStore } from '../hooks/store.hook';
 import { useSessionContext } from '@dfx.swiss/react';
-import { useQuery } from '../hooks/query.hook';
 import { Buffer } from 'buffer';
 import { bech32 } from 'bech32';
 
@@ -27,16 +26,8 @@ export function WalletBox(): JSX.Element {
   const { address, isLoggedIn, login, logout } = useSessionContext();
   const { copy } = useClipboard();
   const { showsSignatureInfo } = useStore();
-  const { address: paramAddress, reloadWithoutBlockedParams } = useQuery();
   const [showModal, setShowModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-
-  useEffect(() => {
-    if (paramAddress) {
-      setAddress(paramAddress);
-      reloadWithoutBlockedParams();
-    }
-  }, [paramAddress]);
 
   useEffect(() => {
     if (isConnected && !isLoggedIn) {
