@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 interface QueryInterface {
-  address?: string;
+  session?: string;
   reloadWithoutBlockedParams: () => void;
 }
 
@@ -10,7 +10,7 @@ export function useQuery(): QueryInterface {
   const navigate = useNavigate();
   const { search, pathname } = useLocation();
 
-  const blockedParams = ['address'];
+  const blockedParams = ['session'];
 
   const query = useMemo(() => new URLSearchParams(search), [search]);
 
@@ -26,7 +26,7 @@ export function useQuery(): QueryInterface {
   }
 
   return {
-    address: getParameter('address'),
+    session: getParameter('session'),
     reloadWithoutBlockedParams,
   };
 }

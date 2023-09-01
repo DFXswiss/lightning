@@ -22,21 +22,36 @@ import {
   StyledTabProps,
   StyledVerticalStack,
 } from '@dfx.swiss/react-components';
-import { useSessionContext, useUserContext } from '@dfx.swiss/react';
+import { useApiSession, useSessionContext, useUserContext } from '@dfx.swiss/react';
 import { ConnectButton } from './connect-button';
 import { useSellTab } from './tabs/sell.tab';
+import { useQuery } from '../hooks/query.hook';
+import jwt_decode from 'jwt-decode';
 
 export function Main(): JSX.Element {
-  const { isInstalled, isConnected, connect: connectWallet } = useWalletContext();
+  const { isInstalled, isConnected, connect: connectWallet, setAddress } = useWalletContext();
   const { isProcessing, needsSignUp, signUp } = useSessionContext();
   const { register } = useUserContext();
   const [showsHelp, setShowsHelp] = useState(false);
   const [showsUserLink, setShowsUserLink] = useState(false);
   const [showsInstallHint, setShowsInstallHint] = useState(false);
+  const { session, reloadWithoutBlockedParams } = useQuery();
+  const { updateSession } = useApiSession();
 
   useEffect(() => {
     register(() => setShowsUserLink(true));
   });
+
+  useEffect(() => {
+    if (session) {
+      const { address } = jwt_decode<{ address: string }>(session);
+
+      updateSession(session);
+      setAddress(address);
+
+      reloadWithoutBlockedParams();
+    }
+  }, [session]);
 
   function connect() {
     isInstalled() ? connectWallet() : setShowsInstallHint(true);

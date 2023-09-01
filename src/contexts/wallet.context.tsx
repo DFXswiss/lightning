@@ -53,7 +53,9 @@ export function WalletContextProvider(props: PropsWithChildren): JSX.Element {
     } else if (account?.node?.alias?.includes('getalby.com')) {
       // log in with Alby
       const win: Window = window;
-      win.location = `${process.env.REACT_APP_API_URL}/alby?redirect_uri=${win.location.origin}`;
+      const url = new URL(`${process.env.REACT_APP_API_URL}/auth/alby`);
+      url.searchParams.set('redirectUri', win.location.origin);
+      win.location = url.toString();
       return '';
     }
 
