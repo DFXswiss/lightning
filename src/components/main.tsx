@@ -180,7 +180,6 @@ export function Main(): JSX.Element {
           <StyledLink label="Terms and conditions" url={process.env.REACT_APP_TNC_URL} />
           <StyledLink label="Privacy policy" url={process.env.REACT_APP_PPO_URL} />
           <StyledLink label="Imprint" url={process.env.REACT_APP_IMP_URL} />
-          <StyledLink label="Proof of Origins of Funds" url={process.env.REACT_APP_POF_URL} />
         </div>
       </div>
     </>
